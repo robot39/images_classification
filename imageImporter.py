@@ -1,7 +1,7 @@
 from sparkdl import readImages
 from pyspark.sql.functions import lit
 
-img_dir = "/PATH/TO/personalities/"
+img_dir = "hdfs:///flower-classify/personalities"
 
 #Read images and Create training & test DataFrames for transfer learning
 jobs_df = readImages(img_dir + "/jobs").withColumn("label", lit(1))
