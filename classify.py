@@ -1,4 +1,8 @@
 # image import
+from pyspark.sql import SparkSession
+from pyspark import SparkContext
+sc = SparkContext()
+spark = SparkSession(sc)
 
 from sparkdl import readImages
 from pyspark.sql.functions import lit

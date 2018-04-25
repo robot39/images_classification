@@ -1,5 +1,10 @@
+from pyspark.sql import SparkSession
+from pyspark import SparkContext
 from sparkdl import readImages
 from pyspark.sql.functions import lit
+
+sc = SparkContext()
+spark = SparkSession(sc)
 
 img_dir = "hdfs:///flower-classify/personalities"
 
