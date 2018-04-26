@@ -8,6 +8,7 @@ from sparkdl import readImages
 from pyspark.sql.functions import lit
 
 img_dir = "hdfs:///flower-classify/personalities"
+model_path = "hdfs:///flower-classify/persons.model"
 
 #Read images and Create training & test DataFrames for transfer learning
 jobs_df = readImages(img_dir + "/jobs").withColumn("label", lit(1))
@@ -31,13 +32,16 @@ featurizer = DeepImageFeaturizer(inputCol="image", outputCol="features", modelNa
 lr = LogisticRegression(maxIter=20, regParam=0.05, elasticNetParam=0.3, labelCol="label")
 p = Pipeline(stages=[featurizer, lr])
 p_model = p.fit(train_df)
+p_model.save(model_path)
 
 # model tester
 
 from pyspark.ml.evaluation import MulticlassClassificationEvaluator
-df = p_model.transform(test_df)
+p_model_loaded = LogisticRegressionModel.load(model_path)
+df = p_model_loaded.transform(test_df)
 df.show()
 
 predictionAndLabels = df.select("prediction", "label")
 evaluator = MulticlassClassificationEvaluator(metricName="accuracy")
+#predictions.select("filePath", "Prediction").show(truncate=False)
 print("Training set accuracy = " + str(evaluator.evaluate(predictionAndLabels)))
