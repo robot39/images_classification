@@ -1,4 +1,5 @@
 # image import
+
 from pyspark.sql import SparkSession
 from pyspark import SparkContext
 sc = SparkContext()
@@ -52,12 +53,19 @@ processed_image_df.show()
 #tf.gfile.FastGFile(model_hdfs_path, 'wb').write(f_content)
 print("-------------CAN TRANSFORM--------------")
 
-lr = LogisticRegression(maxIter=20, regParam=0.05, elasticNetParam=0.3, labelCol="label")
+lr = LogisticRegression(maxIter=25, regParam=0.05, elasticNetParam=0.3, labelCol="label")
 p = Pipeline(stages=[transformer, lr])
 p_model = p.fit(train_df)
 print("-----------CAN TRAIN-----------------")
 
 # model tester
+
+from pyspark.ml.evaluation import MulticlassClassificationEvaluator
+
 predictions = p_model.transform(test_df)
 predictions.show()
-predictions.select("filePath", "prediction").show(truncate=False)
+
+predictionAndLabels = predictions.select("prediction", "label")
+evaluator = MulticlassClassificationEvaluator(metricName="accuracy")
+#predictions.select("filePath", "Prediction").show(truncate=False)
+print("Training set accuracy = " + str(evaluator.evaluate(predictionAndLabels)))
